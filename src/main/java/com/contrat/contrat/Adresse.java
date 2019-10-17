@@ -27,7 +27,6 @@ public class Adresse extends BaseEntityClass {
 
     private String pays;
 
-    @Temporal(TemporalType.DATE)
     private LocalDate dateEffet;
 
     @Enumerated(EnumType.STRING)

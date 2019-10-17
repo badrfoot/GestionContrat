@@ -15,7 +15,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class Evenement extends BaseEntityClass{
 
-    @Temporal(TemporalType.DATE)
     private LocalDate dateModification;
 
     @OneToOne(optional=false)

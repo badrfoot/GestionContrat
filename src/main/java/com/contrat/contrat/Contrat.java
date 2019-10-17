@@ -17,10 +17,8 @@ public class Contrat extends BaseEntityClass{
 
     private String objet;
 
-    @Temporal(TemporalType.DATE)
     private LocalDate dateDebut;
 
-    @Temporal(TemporalType.DATE)
     private LocalDate dateFin;
 
     private String document;
