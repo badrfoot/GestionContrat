@@ -1,18 +1,17 @@
-package com.contrat.contrat;
+package fr.agilit.contrat.entities;
 
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
+@EqualsAndHashCode(exclude = {"id"})
 @Data
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Adresse extends BaseEntityClass {
@@ -30,13 +29,9 @@ public class Adresse extends BaseEntityClass {
     private LocalDate dateEffet;
 
     @Enumerated(EnumType.STRING)
-    private Type type;
+    private TypeAdresse typeAdresse;
 
     @Enumerated(EnumType.STRING)
-    private Etat etat;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "ID_ABONNE")
-    private Abonne abonne;
+    private EtatAdresse etatAdresse;
 
 }

@@ -1,4 +1,4 @@
-package com.contrat.contrat;
+package fr.agilit.contrat.entities;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -7,13 +7,12 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Evenement extends BaseEntityClass{
+public class Evenement extends BaseEntityClass {
 
     private LocalDate dateModification;
 

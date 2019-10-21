@@ -1,4 +1,4 @@
-package com.contrat.contrat;
+package fr.agilit.contrat.entities;
 
 
 import lombok.Getter;
@@ -6,8 +6,9 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.io.Serializable;
 
-@MappedSuperclass
 @Getter
+@MappedSuperclass
+@Access(AccessType.FIELD)
 public abstract class BaseEntityClass implements Serializable {
 
     @Id
