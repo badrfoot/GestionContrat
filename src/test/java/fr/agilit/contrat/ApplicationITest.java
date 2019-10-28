@@ -8,4 +8,5 @@ public class ApplicationITest extends IntegrationTestSetup {
     void contextLoads() {
         // Test spring context
     }
+
 }

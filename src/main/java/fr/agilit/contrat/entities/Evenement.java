@@ -1,20 +1,20 @@
 package fr.agilit.contrat.entities;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @EqualsAndHashCode(callSuper = false)
 public class Evenement extends BaseEntityClass {
 
     private LocalDate dateModification;
+
+    @OneToOne(optional=false)
+    @JoinColumn(name = "ID_ABONNE", nullable=false)
+    private Abonne abonne;
 
     @OneToOne(optional=false)
     @JoinColumn(name = "ID_nouvelleAdresse", nullable=false)

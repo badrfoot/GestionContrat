@@ -1,25 +1,31 @@
 package fr.agilit.contrat.entities;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@Getter @AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, //
+                setterVisibility = Visibility.NONE, //
+                fieldVisibility = Visibility.ANY)
 public class Abonne extends BaseEntityClass {
 
     private String nom;
@@ -28,39 +34,72 @@ public class Abonne extends BaseEntityClass {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "ID_ABONNE")
-    private List<Adresse> adresses = Lists.newArrayList();
+    private Set<Adresse> adresses = Sets.newHashSet();
 
+    @JsonIgnore
     @Getter(value = AccessLevel.NONE)
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "abonne")
-    private List<Contrat> contrats = Lists.newArrayList();
+    private Set<Contrat> contrats = Sets.newHashSet();
 
 
-    public Abonne(String nom, String prenom, List<Adresse> adresses) {
-        Assert.isTrue( getAdressePrincipaleStream(adresses).count()>0, "Une adresse principale doit être définie parmi les adresses de l'abonné(e)" );
-
+    public Abonne(String nom, String prenom, Set<Adresse> adresses) {
         this.nom = nom;
         this.prenom = prenom;
         this.adresses = adresses;
     }
 
-    public List<Contrat> getContrats() {
-        return Collections.unmodifiableList(contrats);
+    public Set<Contrat> getContrats() {
+        return Collections.unmodifiableSet(contrats);
     }
 
     public boolean addContrat(Contrat... contrats){
         return this.contrats.addAll(Lists.newArrayList(contrats));
     }
 
-    public boolean removeContrat(Contrat contrat){
-        return this.contrats.remove(contrat);
+    public boolean removeContrat(Contrat contratToRemove){
+        if ( contrats.contains(contratToRemove) ){
+            contrats.stream()
+                    .filter( contrat -> contrat.equals(contratToRemove) )
+                    .findFirst()
+                    .ifPresent( contrat -> contrat.setDeleted(true) );
+            return true;
+        }
+
+        return false;
     }
 
     public Optional<Adresse> getAdressePrincipale() {
         return getAdressePrincipaleStream(this.adresses).findFirst();
     }
 
-    public Stream<Adresse> getAdressePrincipaleStream(List<Adresse> adresses){
-        return adresses.stream()
-                .filter(adresse -> TypeAdresse.PRINCIPALE.equals(adresse.getTypeAdresse()) );
+    private Stream<Adresse> getAdressePrincipaleStream(Set<Adresse> adresses){
+        return adresses.stream().filter(Adresse::isPrincipale);
     }
+
+    public Optional<Adresse> getAdresseById(long idAdresse){
+        return adresses.stream().filter( adresse -> Objects.equals(adresse.getId(), idAdresse)) //
+                                .findFirst();
+    }
+
+    public Evenement changeAdresse(Adresse newAdresse, Adresse ancienneAdresse, Utilisateur utilisateur) {
+        if ( adresses.contains(newAdresse) ){
+            return new Evenement();
+        }
+
+        Optional<Adresse> ancienAdressePrincipale = getAdressePrincipale();
+        if ( newAdresse.isPrincipale() && ancienAdressePrincipale.isPresent() ){
+            getAdressePrincipale().get().setEtatAdresse(EtatAdresse.INACTIVE);
+        }
+
+        adresses.add(newAdresse);
+        removeAdresse( ancienneAdresse.getId() );
+        return new Evenement( LocalDate.now(), this, newAdresse, ancienneAdresse, utilisateur);
+    }
+
+    public boolean removeAdresse(long idAdresse) {
+        getAdresseById(idAdresse).ifPresent( adresse -> adresse.setDeleted(true) );
+
+        return getAdresseById(idAdresse).isPresent();
+    }
+
 }
